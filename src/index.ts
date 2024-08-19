@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -9,14 +10,15 @@ const app = express();
 const port = process.env.PORT || 8080;
 const cosmosDbUri: string | undefined = process.env.COSMOS_DB_URI;
 const corsOptions = {
-  origin: 'https://ashy-ocean-0062f3f00.5.azurestaticapps.net',
+  origin: ['https://ashy-ocean-0062f3f00.5.azurestaticapps.net'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true
 }
-
+const secretKey = process.env.JWT_SECRET!;
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
-console.log(cosmosDbUri)
 
 if (!cosmosDbUri) {
   throw new Error('COSMOS_DB_URI is not defined in the environment variables.');
@@ -40,15 +42,20 @@ client.connect().then(() => {
         }
         throw new Error ('Invalid username. Only letters and full stops are allowed')      ;
       }
-      const sanitizedUsername = sanitizeUsername(username);
-      console.log(sanitizedUsername);
-      const user = await usersCollection.findOne({ username: sanitizedUsername });
 
-      if (user) {
-        res.status(200).json({ success: true });
-      } else {
-        res.status(401).json({ success: false, message: 'Authentication failed' });
+      const sanitizedUsername = sanitizeUsername(username);
+      const user = await usersCollection.findOne({ username: sanitizedUsername });
+      if (!user){
+       return res.status(401).json({ success: false, message: 'Authentication failed' });
       }
+
+      const token = jwt.sign(
+        {username: user.sanitizedUsername},
+        secretKey,
+        {expiresIn: '1h'}
+      )
+      return res.status(200).json({success: true, token});
+
     } catch (error) {
       console.error('Error:', error);
       res.status(500).json({ success: false, message: 'An error occurred' });

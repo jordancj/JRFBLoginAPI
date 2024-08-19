@@ -16,17 +16,20 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const mongodb_1 = require("mongodb");
 const dotenv_1 = __importDefault(require("dotenv"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
 const cosmosDbUri = process.env.COSMOS_DB_URI;
 const corsOptions = {
-    origin: 'https://ashy-ocean-0062f3f00.5.azurestaticapps.net',
+    origin: ['https://ashy-ocean-0062f3f00.5.azurestaticapps.net'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true
 };
+const secretKey = process.env.JWT_SECRET;
 app.use((0, cors_1.default)(corsOptions));
+app.options('*', (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
-console.log(cosmosDbUri);
 if (!cosmosDbUri) {
     throw new Error('COSMOS_DB_URI is not defined in the environment variables.');
 }
@@ -48,14 +51,12 @@ client.connect().then(() => {
                 throw new Error('Invalid username. Only letters and full stops are allowed');
             }
             const sanitizedUsername = sanitizeUsername(username);
-            console.log(sanitizedUsername);
             const user = yield usersCollection.findOne({ username: sanitizedUsername });
-            if (user) {
-                res.status(200).json({ success: true });
+            if (!user) {
+                return res.status(401).json({ success: false, message: 'Authentication failed' });
             }
-            else {
-                res.status(401).json({ success: false, message: 'Authentication failed' });
-            }
+            const token = jsonwebtoken_1.default.sign({ username: user.sanitizedUsername }, secretKey, { expiresIn: '1h' });
+            return res.status(200).json({ success: true, token });
         }
         catch (error) {
             console.error('Error:', error);
