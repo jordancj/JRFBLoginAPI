@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/ab902c20-c8cd-43e8-9c87-7ef9f9645d9b/resourceGroups/JRFBLogin/providers/Microsoft.Web/sites/JRFBLogin",
+    "appService.deploySubpath": "."
+}
