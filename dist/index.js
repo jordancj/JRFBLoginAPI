@@ -37,6 +37,7 @@ const client = new mongodb_1.MongoClient(cosmosDbUri);
 client.connect().then(() => {
     const db = client.db('JRFBLogin');
     const usersCollection = db.collection('Usernames');
+    const recordsCollection = db.collection('Records');
     app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { username } = req.body;
@@ -61,6 +62,22 @@ client.connect().then(() => {
         catch (error) {
             console.error('Error:', error);
             res.status(500).json({ success: false, message: 'An error occurred' });
+        }
+    }));
+    app.post('/submit', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { timestamp, name, operational, activity } = req.body;
+        try {
+            const result = yield recordsCollection.insertOne({
+                timestamp,
+                name,
+                operational,
+                activity
+            });
+            res.status(200).json({ message: 'Data submitted successfully', result });
+        }
+        catch (error) {
+            console.error('Error submitting data', error);
+            res.status(500).json({ message: 'Failed to submit data' });
         }
     }));
     app.listen(port, () => {
