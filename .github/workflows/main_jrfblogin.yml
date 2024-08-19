@@ -57,9 +57,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7FAA5EB9960341968A410A4AFB4CE907 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_EA44B7C208F8467EB12D2ED2E6D4CC9F }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_782E69278C014F16A13295199BCB03E1 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_54B7062FCA5E4129AE908AD974356455 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F8F4FD4290CC41A8948FBC0E3E0FE338 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_ECD4C634A28E4C23A5167FFB1E68E746 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -67,5 +67,5 @@ jobs:
         with:
           app-name: 'JRFBLogin'
           slot-name: 'Production'
-          package: ./dist
+          package: .
           
