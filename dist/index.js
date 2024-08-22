@@ -22,7 +22,7 @@ const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
 const cosmosDbUri = process.env.COSMOS_DB_URI;
 const corsOptions = {
-    origin: 'https://ashy-ocean-0062f3f00.5.azurestaticapps.net',
+    origin: ['https://ashy-ocean-0062f3f00.5.azurestaticapps.net', 'http://localhost:8080', 'http://127.0.0.1:8080'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true
 };
@@ -78,6 +78,19 @@ client.connect().then(() => {
         catch (error) {
             console.error('Error submitting data', error);
             res.status(500).json({ message: 'Failed to submit data' });
+        }
+    }));
+    app.post('/api/names', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { query } = req.body;
+        try {
+            const names = yield usersCollection.find({ username: { $regex: query, $options: 'i' } }, // Query with regex
+            { projection: { username: 1, _id: 0 } } // Projection to include only `name`
+            ).toArray();
+            res.status(200).json(names);
+        }
+        catch (error) {
+            console.error('Error fetching names', error);
+            res.status(500).json({ message: 'Failed to fetch names' });
         }
     }));
     app.listen(port, () => {
