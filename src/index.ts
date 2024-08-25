@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import cors, {CorsOptions} from 'cors';
+import cors, { CorsOptions } from 'cors';
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
@@ -13,8 +13,9 @@ const secretKey = process.env.JWT_SECRET!;
 const corsOptions: CorsOptions = {
   origin: [],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true
+  credentials: true,
 };
+
 if (process.env.NODE_ENV === 'development') {
   corsOptions.origin = ['http://localhost:8080', 'http://127.0.0.1:8080']; // Allow localhost in development
 } else if (process.env.NODE_ENV === 'production') {
@@ -91,13 +92,14 @@ client.connect().then(() => {
     const { query } = req.body;
 
     try {
-      interface user{
+      interface User {
         username: string;
       }
-      const names = await usersCollection.find<user>(
-        { username: { $regex: query, $options: 'i' } }, // Query with regex
-        { projection: { username: 1, _id: 0} } // Projection to include only `name`
-    ).toArray();
+
+      const names = await usersCollection.find<User>(
+        { username: { $regex: query, $options: 'i' } }, // Use regex for case-insensitive search
+        { projection: { username: 1, _id: 0 } } // Only return the username field
+      ).toArray();
 
       res.status(200).json(names);
     } catch (error) {
