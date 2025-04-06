@@ -21,12 +21,18 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
 const cosmosDbUri = process.env.COSMOS_DB_URI;
-const corsOptions = {
-    origin: ['https://ashy-ocean-0062f3f00.5.azurestaticapps.net', 'http://localhost:8080', 'http://127.0.0.1:8080'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true
-};
 const secretKey = process.env.JWT_SECRET;
+const corsOptions = {
+    origin: [],
+    methods: 'POST',
+    credentials: true,
+};
+if (process.env.NODE_ENV === 'development') {
+    corsOptions.origin = ['http://localhost:8080', 'http://127.0.0.1:8080']; // Allow localhost in development
+}
+else if (process.env.NODE_ENV === 'production') {
+    corsOptions.origin = ['https://ashy-ocean-0062f3f00.5.azurestaticapps.net']; // Allow only your production domain
+}
 app.use((0, cors_1.default)(corsOptions));
 app.options('*', (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
@@ -83,8 +89,8 @@ client.connect().then(() => {
     app.post('/api/names', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { query } = req.body;
         try {
-            const names = yield usersCollection.find({ username: { $regex: query, $options: 'i' } }, // Query with regex
-            { projection: { username: 1, _id: 0 } } // Projection to include only `name`
+            const names = yield usersCollection.find({ username: { $regex: query, $options: 'i' } }, // Use regex for case-insensitive search
+            { projection: { username: 1, _id: 0 } } // Only return the username field
             ).toArray();
             res.status(200).json(names);
         }

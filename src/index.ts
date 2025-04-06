@@ -3,7 +3,6 @@ import cors, { CorsOptions } from 'cors';
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-
 dotenv.config();
 
 const app = express();
@@ -12,7 +11,7 @@ const cosmosDbUri: string | undefined = process.env.COSMOS_DB_URI;
 const secretKey = process.env.JWT_SECRET!;
 const corsOptions: CorsOptions = {
   origin: [],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  methods: 'POST',
   credentials: true,
 };
 
@@ -27,7 +26,7 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 
 if (!cosmosDbUri) {
-  throw new Error('COSMOS_DB_URI is not defined in the environment variables.');
+  throw new Error('URI is not defined in the environment variables.');
 }
 
 const client = new MongoClient(cosmosDbUri);
