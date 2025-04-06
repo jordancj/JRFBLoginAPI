@@ -37,7 +37,7 @@ app.use((0, cors_1.default)(corsOptions));
 app.options('*', (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 if (!cosmosDbUri) {
-    throw new Error('COSMOS_DB_URI is not defined in the environment variables.');
+    throw new Error('URI is not defined in the environment variables.');
 }
 const client = new mongodb_1.MongoClient(cosmosDbUri);
 client.connect().then(() => {
